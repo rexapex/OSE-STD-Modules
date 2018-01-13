@@ -44,11 +44,11 @@ namespace origami_sheep_engine
 		std::string home_dir;
 		FileHandlingUtil::getHomeDirectory(home_dir);
 
-		//TODO - FIND DOCUMENT DIRECTORY FOR MAC & LINUX
-		//TODO - CREATE DIRECTORIES IF THEY DON'T EXIST
+		//TODO - FIND DOCUMENT DIRECTORY FOR MAC & LINUX - DONE - NEEDS TESTING
+		//TODO - CREATE DIRECTORIES IF THEY DON'T EXIST  - DONE - NEEDS TESTING
 		std::string project_path = home_dir + "/Origami_Sheep_Engine/Projects/" + project_name;
+		FileHandlingUtil::createDirs(project_path);
 		LOG("Loading Project Directory: " << project_path << std::endl);
-		//std::string project_path = "D:/James/Documents/Origami_Sheep_Engine/Projects/" + project_name;
 
 		//first, load the manifest
 		std::unique_ptr<ProjectInfo> manifest = loadProjectManifest(project_path);
