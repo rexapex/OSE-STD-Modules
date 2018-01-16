@@ -8,9 +8,9 @@ namespace origami_sheep_engine
 
 	//loads the texture and sets the values of img_data, width and height
 	//path is absolute and is guaranteed to exist
-	void TextureLoaderSOIL::loadTexture(const std::string & path, IMGDATA img_data, int32_t * width, int32_t * height)
+	void TextureLoaderSOIL::loadTexture(const std::string & path, IMGDATA * img_data, int32_t * width, int32_t * height)
 	{
-		img_data = SOIL_load_image(path.c_str(), width, height, 0, SOIL_LOAD_AUTO);
+		*img_data = SOIL_load_image(path.c_str(), width, height, 0, SOIL_LOAD_AUTO);
 	}
 
 	//free resources used by the texture (img_data)

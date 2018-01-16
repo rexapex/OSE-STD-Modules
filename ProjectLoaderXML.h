@@ -27,7 +27,7 @@ namespace origami_sheep_engine
 		void loadInputSettings(const std::string & project_path);
 		std::unique_ptr<Scene> loadScene(const Project & project, const std::string & scene_name);
 		void loadEntityPrefab(std::map<std::string, Entity> & prefab_names_to_object, const std::string & prefab_name,
-													const std::string & prefab_path, const std::string & project_path);
+													const std::string & prefab_path, const Project & project);
 
 	private:
 		//Parse the XML file at 'path' and store the contents in 'content'
@@ -35,9 +35,9 @@ namespace origami_sheep_engine
 		//@returns {std::unique_ptr<rapidxml::xml_document<>>} Pointer to the parsed document
 		std::unique_ptr<rapidxml::xml_document<>> loadXMLFile(const std::string & path, std::string & contents);
 
-		void parseEntity(std::vector<Entity> & entities, rapidxml::xml_node<> * entity_node, std::map<std::string, Entity> & prefab_names_to_object, const std::string & project_path);
+		void parseEntity(std::vector<Entity> & entities, rapidxml::xml_node<> * entity_node, std::map<std::string, Entity> & prefab_names_to_object, const Project & project);
 		void parseTag(std::vector<Tag> & tags, rapidxml::xml_node<> * tag_node);
-		void parseResources(rapidxml::xml_node<> * resources_node, std::map<std::string, Entity> & prefab_names_to_object, const std::string & project_path);
+		void parseResources(rapidxml::xml_node<> * resources_node, std::map<std::string, Entity> & prefab_names_to_object, const Project & project);
 
 		const std::string file_extension = ".xml";
 	};
