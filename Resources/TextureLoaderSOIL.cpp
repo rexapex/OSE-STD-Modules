@@ -1,7 +1,7 @@
 #include "../../stdafx.h"
 #include "TextureLoaderSOIL.h"
 
-namespace origami_sheep_engine
+namespace ose::resources
 {
 	TextureLoaderSOIL::TextureLoaderSOIL(const std::string & project_path) : TextureLoader(project_path) {}
 

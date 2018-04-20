@@ -6,12 +6,14 @@
 #include "../../OSE-Core/Game/Tag.h"
 #include "../../OSE-Core/Entity/IDManager.h"
 #include "../../OSE-Core/Entity/Component.h"
-#include "../../OSE-Core/Rendering/MeshFilter.h"
+#include "../../OSE-Core/Resources/MeshFilter.h"
 #include "../../OSE-Core/Rendering/MeshRenderer.h"
 #include "../../OSE-Core/Rendering/Material.h"
 
-namespace origami_sheep_engine
+namespace ose::project
 {
+	using namespace ose::game;
+
 	//Loads projects from xml text files
 	class ProjectLoaderXML : public ProjectLoader
 	{

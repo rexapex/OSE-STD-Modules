@@ -1,7 +1,7 @@
 #include "../../stdafx.h"
 #include "RenderingEngineGL.h"
 
-namespace origami_sheep_engine
+namespace ose::rendering
 {
 	RenderingEngineGL::RenderingEngineGL() : RenderingEngine()
 	{

@@ -11,7 +11,7 @@
 #include <GLFW/glfw3.h>
 
 
-namespace origami_sheep_engine
+namespace ose::windowing
 {
 	class WindowManagerGLFW : public WindowManager
 	{

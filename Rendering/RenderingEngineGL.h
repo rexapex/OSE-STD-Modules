@@ -9,8 +9,10 @@
 #include "../../OSE-Core/Rendering/SpriteRenderer.h"
 #include "../../OSE-Core/EngineDependencies/glm/glm.hpp"
 
-namespace origami_sheep_engine
+namespace ose::rendering
 {
+	using namespace game;
+
 	class RenderingEngineGL : public RenderingEngine
 	{
 	public:

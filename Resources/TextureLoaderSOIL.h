@@ -4,7 +4,7 @@
 #include "../../OSE-Core/Resources/Texture.h"
 #include <SOIL.h>
 
-namespace origami_sheep_engine
+namespace ose::resources
 {
 	class TextureLoaderSOIL : public TextureLoader
 	{
