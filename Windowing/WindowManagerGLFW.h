@@ -2,9 +2,9 @@
 
 #define GLEW_STATIC
 
-#include "../stdafx.h"
-#include "../WindowManager.h"
-#include "../VideoMode.h"
+#include "../../stdafx.h"
+#include "../../OSE-Core/Windowing/WindowManager.h"
+#include "../../OSE-Core/Rendering/VideoMode.h"
 #include <windows.h>
 #include <GL/glew.h>
 #include <GL/gl.h>

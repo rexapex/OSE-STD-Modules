@@ -1,14 +1,14 @@
 #pragma once
-#include "../ProjectLoader.h"
-#include "EngineDependencies/rapidxml-1.13/rapidxml.hpp"
-#include "../FileHandlingUtil.h"
-#include "../Scene.h"
-#include "../Tag.h"
-#include "../IDManager.h"
-#include "../Component.h"
-#include "../MeshFilter.h"
-#include "../MeshRenderer.h"
-#include "../Material.h"
+#include "../EngineDependencies/rapidxml-1.13/rapidxml.hpp"
+#include "../../OSE-Core/Project/ProjectLoader.h"
+#include "../../OSE-Core/Resources/FileHandlingUtil.h"
+#include "../../OSE-Core/Game/Scene.h"
+#include "../../OSE-Core/Game/Tag.h"
+#include "../../OSE-Core/Entity/IDManager.h"
+#include "../../OSE-Core/Entity/Component.h"
+#include "../../OSE-Core/Rendering/MeshFilter.h"
+#include "../../OSE-Core/Rendering/MeshRenderer.h"
+#include "../../OSE-Core/Rendering/Material.h"
 
 namespace origami_sheep_engine
 {

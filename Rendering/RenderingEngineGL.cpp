@@ -1,3 +1,4 @@
+#include "../../stdafx.h"
 #include "RenderingEngineGL.h"
 
 namespace origami_sheep_engine
@@ -25,6 +26,24 @@ namespace origami_sheep_engine
 		glViewport(0, 0, fbwidth, fbheight);	//still required with shaders as far as I'm aware
 	}
 
+	//add entities render components to render objects
+	void RenderingEngineGL::addEntityRenderObject(std::vector<Entity> & entities)
+	{
+		//for(Entity & e : entities)
+		{
+			//for(std::unique_ptr<SpriteRenderer> & r : e.get_components())
+			{
+
+			}
+		}
+	}
+
+	//clear the list of entity render object
+	void RenderingEngineGL::clearEntityRenderObjects(const Entity & entity)
+	{
+
+	}
+
 	void RenderingEngineGL::render()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -36,6 +55,16 @@ namespace origami_sheep_engine
 		glColor3f(0.0f, 1.0f, 0.0f);   glVertex2f(1.0f,  -1.0f);
 		glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(-1.0f, -1.0f);
 		glEnd();
+	}
+
+	//create a rendering engine specific texture object for a ose texture object
+	void RenderingEngineGL::createTexture(const Texture & texture)
+	{
+	}
+
+	//delete a rendering engine specific texture object
+	void RenderingEngineGL::deleteTexture(const Texture & texture)
+	{
 	}
 
 	//load OpenGL functions using GLEW

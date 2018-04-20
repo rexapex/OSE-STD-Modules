@@ -1,3 +1,4 @@
+#include "../../stdafx.h"
 #include "TextureLoaderSOIL.h"
 
 namespace origami_sheep_engine

@@ -1,7 +1,7 @@
 #pragma once
-#include "../stdafx.h"
-#include "../TextureLoader.h"
-#include "../Texture.h"
+#include "../../stdafx.h"
+#include "../../OSE-Core/Resources/TextureLoader.h"
+#include "../../OSE-Core/Resources/Texture.h"
 #include <SOIL.h>
 
 namespace origami_sheep_engine
