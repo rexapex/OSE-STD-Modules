@@ -1,7 +1,6 @@
 #pragma once
-#include "../../stdafx.h"
-#include "../../OSE-Core/Resources/TextureLoader.h"
-#include "../../OSE-Core/Resources/Texture.h"
+#include "OSE-Core/Resources/TextureLoader.h"
+#include "OSE-Core/Resources/Texture.h"
 #include <SOIL.h>
 
 namespace ose::resources

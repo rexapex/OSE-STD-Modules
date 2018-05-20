@@ -1,14 +1,15 @@
 #pragma once
-#include "../EngineDependencies/rapidxml-1.13/rapidxml.hpp"
-#include "../../OSE-Core/Project/ProjectLoader.h"
-#include "../../OSE-Core/Resources/FileHandlingUtil.h"
-#include "../../OSE-Core/Game/Scene.h"
-#include "../../OSE-Core/Game/Tag.h"
-#include "../../OSE-Core/Entity/IDManager.h"
-#include "../../OSE-Core/Entity/Component.h"
-#include "../../OSE-Core/Resources/MeshFilter.h"
-#include "../../OSE-Core/Rendering/MeshRenderer.h"
-#include "../../OSE-Core/Rendering/Material.h"
+#include "OSE-V2-STD-Modules/EngineDependencies/rapidxml-1.13/rapidxml.hpp"
+#include "OSE-Core/Project/ProjectLoader.h"
+#include "OSE-Core/Resources/FileHandlingUtil.h"
+#include "OSE-Core/Game/Scene.h"
+#include "OSE-Core/Game/Tag.h"
+#include "OSE-Core/Game/IDManager.h"
+#include "OSE-Core/Entity/Component.h"
+#include "OSE-Core/Entity/MeshFilter.h"
+#include "OSE-Core/Entity/MeshRenderer.h"
+#include "OSE-Core/Entity/Material.h"
+#include <functional>
 
 namespace ose::project
 {
@@ -28,7 +29,7 @@ namespace ose::project
 		void loadProjectSettings(const std::string & project_path);
 		void loadInputSettings(const std::string & project_path);
 		std::unique_ptr<Scene> loadScene(const Project & project, const std::string & scene_name);
-		void loadEntityPrefab(std::map<std::string, Entity> & prefab_names_to_object, const std::string & prefab_name,
+		void loadEntityPrefab(std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const std::string & prefab_name,
 													const std::string & prefab_path, const Project & project);
 
 	private:
@@ -37,9 +38,10 @@ namespace ose::project
 		//@returns {std::unique_ptr<rapidxml::xml_document<>>} Pointer to the parsed document
 		std::unique_ptr<rapidxml::xml_document<>> loadXMLFile(const std::string & path, std::string & contents);
 
-		void parseEntity(std::vector<Entity> & entities, rapidxml::xml_node<> * entity_node, std::map<std::string, Entity> & prefab_names_to_object, const Project & project);
+		std::unique_ptr<Entity> parseEntity(rapidxml::xml_node<> * entity_node, std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const Project & project);
+		
 		void parseTag(std::vector<Tag> & tags, rapidxml::xml_node<> * tag_node);
-		void parseResources(rapidxml::xml_node<> * resources_node, std::map<std::string, Entity> & prefab_names_to_object, const Project & project);
+		void parseResources(rapidxml::xml_node<> * resources_node, std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const Project & project);
 
 		const std::string file_extension = ".xml";
 	};

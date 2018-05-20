@@ -6,7 +6,6 @@
 #include <GL/GL.h>
 #include "../../stdafx.h"
 #include "../../OSE-Core/Rendering/RenderingEngine.h"
-#include "../../OSE-Core/Rendering/SpriteRenderer.h"
 #include "../../OSE-Core/EngineDependencies/glm/glm.hpp"
 
 namespace ose::rendering
@@ -45,7 +44,7 @@ namespace ose::rendering
 		void deleteTexture(const Texture & texture) override;
 
 		//TODO - remove test list and replace with render object system
-		std::vector<SpriteRenderer> sprites;
+		//std::vector<SpriteRenderer> sprites;
 	};
 }
 

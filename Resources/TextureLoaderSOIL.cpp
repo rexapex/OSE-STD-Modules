@@ -1,4 +1,4 @@
-#include "../../stdafx.h"
+#include "stdafx.h"
 #include "TextureLoaderSOIL.h"
 
 namespace ose::resources

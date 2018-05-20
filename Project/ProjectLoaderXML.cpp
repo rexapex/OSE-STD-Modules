@@ -1,4 +1,4 @@
-#include "../../stdafx.h"
+#include "stdafx.h"
 #include "ProjectLoaderXML.h"
 
 namespace ose::project
@@ -259,20 +259,22 @@ namespace ose::project
 		std::unique_ptr<Scene> scene = std::make_unique<Scene>(scene_name_attrib ? scene_name_attrib->value() : scene_name);
 
 		//get the prefabs required for this scene
-		std::map<std::string, Entity> prefab_paths_to_object;
+		std::map<std::string, std::unique_ptr<Entity>> prefab_paths_to_object;
 		parseResources(resources_node, prefab_paths_to_object, project);
 		
 		//load the scene's entities
 		for(auto entity_node = entities_node->first_node("entity"); entity_node; entity_node = entity_node->next_sibling("entity"))
 		{
-			parseEntity(scene->get_entities(), entity_node, prefab_paths_to_object, project);
+			// create the entity then move it's pointer to the scene
+			auto entity = parseEntity(entity_node, prefab_paths_to_object, project);
+			scene->addEntity(std::move(entity));
 		}
 
 		return scene;
 	}
 
 
-	void ProjectLoaderXML::loadEntityPrefab(std::map<std::string, Entity> & prefab_names_to_object, const std::string & prefab_name,
+	void ProjectLoaderXML::loadEntityPrefab(std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const std::string & prefab_name,
 																	const std::string & prefab_path, const Project & project)
 	{
 		using namespace rapidxml;
@@ -297,27 +299,26 @@ namespace ose::project
 		//avoids name conflicts within the Entity_Prefabs dir arising from sub-dirs...
 		//...but means prefab which load another prefab could potentially load the same prefab twice...
 		//...this works but is inefficient if this situation ever arises
-		std::map<std::string, Entity> local_prefab_names_to_object;
+		std::map<std::string, std::unique_ptr<Entity>> local_prefab_names_to_object;
 
 		//Load the resources (including prefabs) used by the entity prefab
 		parseResources(resources_node, local_prefab_names_to_object, project);
 
 		//load the prefab entity as an Entity object
-		std::vector<Entity> output_entity;				//after parseEntity call, vector should have length 1
-		parseEntity(output_entity, entity_node, local_prefab_names_to_object, project);
-
+		auto output_entity = parseEntity(entity_node, local_prefab_names_to_object, project);														//TODO - readd
 		const auto & pos = prefab_names_to_object.find(prefab_name);
 
 		//add the new prefab object to the global prefab_paths_to_object map
-		if(output_entity.size() > 0 && pos == prefab_names_to_object.end())
-			prefab_names_to_object.insert({prefab_name, std::move(output_entity[0])});
+		if(output_entity != nullptr && pos == prefab_names_to_object.end())
+			prefab_names_to_object.insert({prefab_name, std::move(output_entity)});
 		else
 			LOG("ERROR: failed to load entity prefab " + prefab_path);
 	}
 
 
-	void ProjectLoaderXML::parseEntity(std::vector<Entity> & entities, rapidxml::xml_node<> * entity_node,
-										std::map<std::string, Entity> & prefab_names_to_object, const Project & project)
+	// returns: Entity object created
+	std::unique_ptr<Entity> ProjectLoaderXML::parseEntity(rapidxml::xml_node<> * entity_node,
+										std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const Project & project)
 	{
 		using namespace rapidxml;
 
@@ -330,20 +331,25 @@ namespace ose::project
 		auto prefab_attrib = entity_node->first_attribute("prefab");
 		const std::string & prefab = (prefab_attrib ? prefab_attrib->value(): "");
 
+		// reference to the newly created entity (not yet created)
+		std::unique_ptr<Entity> new_entity = nullptr;
+		//auto & sub_list = new_entity.get_sub_entities();
+
 		//if no prefab is specified, then create a new entity object
 		if(prefab == "")
 		{
+			new_entity = std::make_unique<Entity>(name, tag, prefab);
 			//add the entity to the entities list
-			try
+			/*try
 			{
-				entities.emplace_back(IDManager::next_entity_ID(), name, tag, prefab);
+				new_entity = &t.addEntity(name, tag, prefab);
 			}
 			catch(const std::exception &)
 			{
 				//if adding the entity fails, exit the function to avoid overwriting previous entities
 				LOG("ERROR: failed to load entity, " << name);
 				return;
-			}
+			}*/
 		}
 		//else, use the existing prefab object as a template
 		else 
@@ -352,18 +358,24 @@ namespace ose::project
 			if(iter != prefab_names_to_object.end())
 			{
 				const auto & prefab_object = iter->second;
-				DEBUG_LOG("Entity: " << name << " extends " << prefab_object.get_name() << std::endl);
+				DEBUG_LOG("Entity: " << name << " extends " << prefab_object->get_name() << std::endl);
 				//copy the prefab object and place it into the entities list
-				entities.emplace_back(prefab_object);
+				//entities.emplace_back(prefab_object);
 				//overwrite the default prefab values
-				entities.back().set_name(name);
-				entities.back().set_tag(tag);
+				//entities.back().set_name(name);
+				//entities.back().set_tag(tag);
+				new_entity = std::make_unique<Entity>(*prefab_object);	// create object from copy of prefab
+				//Entity & prefab_copy = t.addEntity(prefab_object);
+				new_entity->set_name(name);
+				new_entity->set_tag(tag);
+				//new_entity = &prefab_copy;
 			}
 		}
 
-		//get the newly added entity
-		auto & new_entity = entities.back();
-		auto & sub_list = new_entity.get_sub_entities();
+		if(new_entity == nullptr) {
+			LOG("ERROR: new_entity is null");
+			return nullptr;
+		}
 
 		//parse the components of the new entity
 		for(auto component_node = entity_node->first_node("texture_filter"); component_node; component_node = component_node->next_sibling("texture_filter"))
@@ -394,12 +406,16 @@ namespace ose::project
 		//parse any sub-entities
 		for(auto sub_entity_node = entity_node->first_node("entity"); sub_entity_node; sub_entity_node = sub_entity_node->next_sibling("entity"))
 		{
-			parseEntity(sub_list, sub_entity_node, prefab_names_to_object, project);
+			// create the sub entity then move it's pointer to the new_entity
+			auto sub_entity = parseEntity(sub_entity_node, prefab_names_to_object, project);
+			new_entity->addSubEntity(std::move(sub_entity));
 		}
+
+		return std::move(new_entity);
 	}
 
 
-	void ProjectLoaderXML::parseResources(rapidxml::xml_node<> * resources_node, std::map<std::string, Entity> & prefab_names_to_object, const Project & project)
+	void ProjectLoaderXML::parseResources(rapidxml::xml_node<> * resources_node, std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const Project & project)
 	{
 		//parse texture nodes
 		for(auto texture_node { resources_node->first_node("texture") }; texture_node; texture_node = texture_node->next_sibling("texture"))
