@@ -77,8 +77,9 @@ namespace ose::project
 		{
 			doc = loadXMLFile(project_path + "/info.xml", contents);
 		}
-		catch(const std::exception &)
+		catch(const std::exception & e)
 		{
+			ERROR_LOG(e.what());
 			return std::make_unique<ProjectInfo>(std::move(ProjectInfo {"UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN"}));
 		}
 
@@ -126,8 +127,9 @@ namespace ose::project
 		{
 			doc = loadXMLFile(project_path + "/scene_declerations.xml", contents);
 		}
-		catch(const std::exception &)
+		catch(const std::exception & e)
 		{
+			ERROR_LOG(e.what());
 			return name_to_path_map;
 		}
 
@@ -164,8 +166,9 @@ namespace ose::project
 		{
 			doc = loadXMLFile(project_path + "/tags.xml", contents);
 		}
-		catch(const std::exception &)
+		catch(const std::exception & e)
 		{
+			ERROR_LOG(e.what());
 			return nullptr;
 		}
 
@@ -230,52 +233,54 @@ namespace ose::project
 		std::string contents;
 		std::string scene_path;
 
+		// Game ensures scene exists therefore do not need to check here
 		auto map = project.get_scene_names_to_path_map();
 		auto pos = map.find(scene_name);
-		if(pos == map.end())
-		{
-			LOG("ProjectLoaderXML::loadScene -> ERROR: " + scene_name + " does not exist");
-			return nullptr;
-		}
-		else
-		{
-			scene_path = project.get_project_path() + "/" + pos->second + ".xml";
-		}
+		scene_path = project.get_project_path() + "/" + pos->second + ".xml";
 
 		try
 		{
 			doc = loadXMLFile(scene_path, contents);
 		}
-		catch(const std::exception &)
+		catch(const std::exception & e)
 		{
+			ERROR_LOG(e.what());
 			return nullptr;
 		}
 
 		auto scene_node = doc->first_node("scene");
 		auto scene_name_attrib = (scene_node ? scene_node->first_attribute("name") : nullptr);
+		///auto aliases_node = scene_node->first_node("aliases");
 		auto entities_node = scene_node->first_node("entities");
 		auto resources_node = scene_node->first_node("resources");
+		///auto cached_prefabs_node = scene_node->first_node("cached_prefabs");
 
 		std::unique_ptr<Scene> scene = std::make_unique<Scene>(scene_name_attrib ? scene_name_attrib->value() : scene_name);
 
-		//get the prefabs required for this scene
-		std::map<std::string, std::unique_ptr<Entity>> prefab_paths_to_object;
-		parseResources(resources_node, prefab_paths_to_object, project);
+		// map of aliases (lhs = alias, rhs = replacement), only applicable to current file
+		std::unordered_map<std::string, std::string> aliases;
+		parseResources(resources_node, aliases, project);
 		
-		//load the scene's entities
-		for(auto entity_node = entities_node->first_node("entity"); entity_node; entity_node = entity_node->next_sibling("entity"))
-		{
-			// create the entity then move it's pointer to the scene
-			auto entity = parseEntity(entity_node, prefab_paths_to_object, project);
-			scene->addEntity(std::move(entity));
+		// load the scene's entities
+		if(entities_node != nullptr) {
+			for(auto entity_node = entities_node->first_node("entity"); entity_node; entity_node = entity_node->next_sibling("entity"))
+			{
+				// create the entity then move it's pointer to the scene
+				auto entity = parseEntity(entity_node, aliases, project);
+				if(entity != nullptr) {
+					scene->entities().add(std::move(entity));
+				}
+			}
 		}
+
+		// remove the temporary prefabs since they were only needed for scene loading
+		project.get_prefab_manager().clearTempPrefabs();
 
 		return scene;
 	}
 
 
-	void ProjectLoaderXML::loadEntityPrefab(std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const std::string & prefab_name,
-																	const std::string & prefab_path, const Project & project)
+	std::unique_ptr<Entity> ProjectLoaderXML::loadEntityPrefab(const std::string & prefab_path, const Project & project)
 	{
 		using namespace rapidxml;
 
@@ -287,38 +292,34 @@ namespace ose::project
 			//load the prefab from its xml file
 			doc = loadXMLFile(project.get_project_path() + "/" + prefab_path + file_extension, contents);
 		}
-		catch(const std::exception &)
+		catch(const std::exception & e)
 		{
-			return;
+			ERROR_LOG(e.what());
+			return nullptr;
 		}
 
 		auto resources_node = doc->first_node("resources");
 		auto entity_node = doc->first_node("entity");
 
-		//the prefab objects used by the current prefab object
-		//avoids name conflicts within the Entity_Prefabs dir arising from sub-dirs...
-		//...but means prefab which load another prefab could potentially load the same prefab twice...
-		//...this works but is inefficient if this situation ever arises
-		std::map<std::string, std::unique_ptr<Entity>> local_prefab_names_to_object;
+		// map of aliases (lhs = alias, rhs = replacement), only applicable to current file
+		std::unordered_map<std::string, std::string> prefab_aliases;
+		parseResources(resources_node, prefab_aliases, project);
 
-		//Load the resources (including prefabs) used by the entity prefab
-		parseResources(resources_node, local_prefab_names_to_object, project);
+		// load the prefab entity as an Entity object
+		auto output_entity = parseEntity(entity_node, prefab_aliases, project);
 
-		//load the prefab entity as an Entity object
-		auto output_entity = parseEntity(entity_node, local_prefab_names_to_object, project);														//TODO - readd
-		const auto & pos = prefab_names_to_object.find(prefab_name);
+		// check the entity was successfully loaded and that the name is unique
+		if(output_entity && !project.get_prefab_manager().doesPrefabExist(prefab_path)) {
+			return std::move(output_entity);
+		}
 
-		//add the new prefab object to the global prefab_paths_to_object map
-		if(output_entity != nullptr && pos == prefab_names_to_object.end())
-			prefab_names_to_object.insert({prefab_name, std::move(output_entity)});
-		else
-			LOG("ERROR: failed to load entity prefab " + prefab_path);
+		return nullptr;
 	}
 
 
 	// returns: Entity object created
 	std::unique_ptr<Entity> ProjectLoaderXML::parseEntity(rapidxml::xml_node<> * entity_node,
-										std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const Project & project)
+			std::unordered_map<std::string, std::string> & aliases, const Project & project)
 	{
 		using namespace rapidxml;
 
@@ -329,46 +330,32 @@ namespace ose::project
 		const std::string & tag = (tag_attrib ? tag_attrib->value() : "");
 
 		auto prefab_attrib = entity_node->first_attribute("prefab");
-		const std::string & prefab = (prefab_attrib ? prefab_attrib->value(): "");
+		const std::string & prefab_text = (prefab_attrib ? prefab_attrib->value(): "");
+
+		// if the prefab is an alias, find it's replacement text, else use the file text
+		const auto prefab_text_alias_pos = aliases.find(prefab_text);
+		const std::string & prefab = prefab_text_alias_pos == aliases.end() ? prefab_text : prefab_text_alias_pos->second;
 
 		// reference to the newly created entity (not yet created)
 		std::unique_ptr<Entity> new_entity = nullptr;
-		//auto & sub_list = new_entity.get_sub_entities();
 
-		//if no prefab is specified, then create a new entity object
 		if(prefab == "")
 		{
+			// if no prefab is specified, then create a new entity object
 			new_entity = std::make_unique<Entity>(name, tag, prefab);
-			//add the entity to the entities list
-			/*try
-			{
-				new_entity = &t.addEntity(name, tag, prefab);
-			}
-			catch(const std::exception &)
-			{
-				//if adding the entity fails, exit the function to avoid overwriting previous entities
-				LOG("ERROR: failed to load entity, " << name);
-				return;
-			}*/
 		}
-		//else, use the existing prefab object as a template
-		else 
+		else
 		{
-			const auto & iter = prefab_names_to_object.find(prefab);
-			if(iter != prefab_names_to_object.end())
+			// else, use the existing prefab object as a template
+			if(project.get_prefab_manager().doesPrefabExist(prefab))
 			{
-				const auto & prefab_object = iter->second;
-				DEBUG_LOG("Entity: " << name << " extends " << prefab_object->get_name() << std::endl);
-				//copy the prefab object and place it into the entities list
-				//entities.emplace_back(prefab_object);
-				//overwrite the default prefab values
-				//entities.back().set_name(name);
-				//entities.back().set_tag(tag);
-				new_entity = std::make_unique<Entity>(*prefab_object);	// create object from copy of prefab
-				//Entity & prefab_copy = t.addEntity(prefab_object);
+				const auto & prefab_object = project.get_prefab_manager().getPrefab(prefab);
+				DEBUG_LOG("Entity " << name << " extends " << prefab_object.get_name() << std::endl);
+				new_entity = std::make_unique<Entity>(prefab_object);	// create object from copy of prefab
 				new_entity->set_name(name);
 				new_entity->set_tag(tag);
-				//new_entity = &prefab_copy;
+			} else {
+				DEBUG_LOG("Prefab " << prefab << " does not exist");
 			}
 		}
 
@@ -383,7 +370,7 @@ namespace ose::project
 			//has name & path attributes
 			auto name_attrib = component_node->first_attribute("name");
 			auto path_attrib = component_node->first_attribute("path");
-			//	new_entity.get_components().emplace_back(std::make_unique<MeshFilter>((name_attrib ? name_attrib->value() : ""), (path_attrib ? path_attrib->value() : "")));
+		//	new_entity.get_components().emplace_back(std::make_unique<MeshFilter>((name_attrib ? name_attrib->value() : ""), (path_attrib ? path_attrib->value() : "")));
 		}
 
 		//mesh components
@@ -407,48 +394,58 @@ namespace ose::project
 		for(auto sub_entity_node = entity_node->first_node("entity"); sub_entity_node; sub_entity_node = sub_entity_node->next_sibling("entity"))
 		{
 			// create the sub entity then move it's pointer to the new_entity
-			auto sub_entity = parseEntity(sub_entity_node, prefab_names_to_object, project);
-			new_entity->addSubEntity(std::move(sub_entity));
+			auto sub_entity = parseEntity(sub_entity_node, aliases, project);
+			new_entity->sub_entities().add(std::move(sub_entity));
 		}
 
 		return std::move(new_entity);
 	}
 
-
-	void ProjectLoaderXML::parseResources(rapidxml::xml_node<> * resources_node, std::map<std::string, std::unique_ptr<Entity>> & prefab_names_to_object, const Project & project)
+	void ProjectLoaderXML::parseResources(rapidxml::xml_node<> * resources_node, std::unordered_map<std::string, std::string> & aliases, const Project & project)
 	{
-		//parse texture nodes
+		// parse texture nodes
 		for(auto texture_node { resources_node->first_node("texture") }; texture_node; texture_node = texture_node->next_sibling("texture"))
 		{
-			auto const tex_name_attrib { texture_node->first_attribute("name") };
-			auto const tex_path_attrib { texture_node->first_attribute("path") };
+			auto const tex_alias_attrib { texture_node->first_attribute("alias") };
+			auto const tex_path_attrib  { texture_node->first_attribute("path") };
 
-			if(tex_name_attrib && tex_path_attrib)
+			if(tex_path_attrib)
 			{
-				auto const tex_name { tex_name_attrib->value() };
 				auto const tex_path { tex_path_attrib->value() };
-				project.get_resource_manager()->addTexture(tex_path, tex_name);
+
+				// if there is an alias provided, add it to the list of aliases for this file
+				if(tex_alias_attrib) {
+					auto const tex_alias { tex_alias_attrib->value() };
+					aliases.insert({ tex_alias, tex_path });
+				}
+
+				project.get_resource_manager().addTexture(tex_path, "");	// TODO - remove name_ field from texture class
 			}
 		}
 
-		//parse prefab nodes
+		// parse prefab nodes
 		for(auto prefab_node { resources_node->first_node("prefab") }; prefab_node; prefab_node = prefab_node->next_sibling("prefab"))
 		{
-			auto const prefab_name_attrib { prefab_node->first_attribute("name") };
-			auto const prefab_path_attrib { prefab_node->first_attribute("path") };
+			auto const prefab_alias_attrib { prefab_node->first_attribute("alias") };
+			auto const prefab_path_attrib  { prefab_node->first_attribute("path") };
+			auto const prefab_is_cached	   { prefab_node->first_attribute("cached") };
 			
-			if(prefab_name_attrib && prefab_path_attrib)
+			if(prefab_path_attrib)
 			{
-				auto const prefab_name { prefab_name_attrib->value() };
-				auto const prefab_path { prefab_path_attrib->value() };
-				auto const pos { prefab_names_to_object.find(prefab_name) };
+				auto const prefab_path  { prefab_path_attrib->value() };
 
-				//check if the prefab name has not been used
-				if(pos == prefab_names_to_object.end() && prefab_name != "" && prefab_path != "")
-				{
-					//and if so, then load the corresponding prefab file and add it to the map
-					loadEntityPrefab(prefab_names_to_object, prefab_name, prefab_path, project);
-					//prefab_names_to_path.insert({prefab_name, prefab_path});
+				// if there is an alias provided, add it to the list of aliases for this file
+				if(prefab_alias_attrib) {
+					auto const prefab_alias { prefab_alias_attrib->value() };
+					aliases.insert({ prefab_alias, prefab_path });
+				}
+
+				// and if so, then load the corresponding prefab file and add it to the map
+				// NOTE - currently only check existence of attribute rather than whether it's value is true or false
+				if(prefab_is_cached) {
+					project.get_prefab_manager().addCachedPrefab(std::move(loadEntityPrefab(prefab_path, project)), prefab_path);
+				} else {
+					project.get_prefab_manager().addTempPrefab(std::move(loadEntityPrefab(prefab_path, project)), prefab_path);
 				}
 			}
 		}
