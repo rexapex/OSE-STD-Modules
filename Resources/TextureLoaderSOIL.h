@@ -1,6 +1,5 @@
 #pragma once
 #include "OSE-Core/Resources/TextureLoader.h"
-#include "OSE-Core/Resources/Texture.h"
 #include <SOIL.h>
 
 namespace ose::resources
@@ -22,7 +21,7 @@ namespace ose::resources
 		virtual void loadTexture(const std::string & path, IMGDATA * img_data, int32_t * width, int32_t * height);
 
 		//free resources used by the texture (img_data)
-		virtual void freeTexture(const Texture & tex);
+		virtual void freeTexture(IMGDATA img_data);
 	};
 }
 

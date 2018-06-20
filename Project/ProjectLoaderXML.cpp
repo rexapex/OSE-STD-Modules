@@ -364,19 +364,31 @@ namespace ose::project
 			return nullptr;
 		}
 
-		//parse the components of the new entity
-		for(auto component_node = entity_node->first_node("texture_filter"); component_node; component_node = component_node->next_sibling("texture_filter"))
+		// parse the components of the new entity
+		for(auto component_node = entity_node->first_node("sprite_renderer"); component_node; component_node = component_node->next_sibling("sprite_renderer"))
 		{
-			//has name & path attributes
-			auto name_attrib = component_node->first_attribute("name");
-			auto path_attrib = component_node->first_attribute("path");
-		//	new_entity.get_components().emplace_back(std::make_unique<MeshFilter>((name_attrib ? name_attrib->value() : ""), (path_attrib ? path_attrib->value() : "")));
+			// has name & texture attributes
+			auto name_attrib	= component_node->first_attribute("name");
+			auto texture_attrib = component_node->first_attribute("texture");
+			std::string name { (name_attrib ? name_attrib->value() : "") };
+
+			// if texture is an alias, find it's replacement text, else use the file text
+			std::string texture_text { (texture_attrib ? texture_attrib->value() : "") };
+			const auto texture_text_alias_pos { aliases.find(texture_text) };
+			const std::string & texture { texture_text_alias_pos == aliases.end() ? texture_text : texture_text_alias_pos->second };
+
+			const Texture * tex = project.get_resource_manager().getTexture(texture);
+			if(tex != nullptr) {
+				new_entity->addComponent<SpriteRenderer>(name, *tex);
+			} else {
+				ERROR_LOG("Error: texture " << texture << " has not been loaded");
+			}
 		}
 
-		//mesh components
+		// mesh components
 		for(auto component_node = entity_node->first_node("mesh_filter"); component_node; component_node = component_node->next_sibling("mesh_filter"))
 		{
-			//has name & path attributes
+			// has name & path attributes
 			auto name_attrib = component_node->first_attribute("name");
 			auto path_attrib = component_node->first_attribute("path");
 		//	new_entity.get_components().emplace_back(std::make_unique<MeshFilter>((name_attrib ? name_attrib->value() : ""), (path_attrib ? path_attrib->value() : "")));
@@ -384,13 +396,13 @@ namespace ose::project
 
 		for(auto component_node = entity_node->first_node("mesh_renderer"); component_node; component_node = component_node->next_sibling("mesh_renderer"))
 		{
-			//has name & path attributes
+			// has name & path attributes
 			auto name_attrib = component_node->first_attribute("name");
 			auto path_attrib = component_node->first_attribute("path");
 		//	new_entity.get_components().emplace_back(std::make_unique<MeshRenderer>(name_attrib ? name_attrib->value() : ""));
 		}
 
-		//parse any sub-entities
+		// parse any sub-entities
 		for(auto sub_entity_node = entity_node->first_node("entity"); sub_entity_node; sub_entity_node = sub_entity_node->next_sibling("entity"))
 		{
 			// create the sub entity then move it's pointer to the new_entity

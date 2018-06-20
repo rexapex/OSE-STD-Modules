@@ -110,6 +110,7 @@ namespace ose::windowing
 		else
 		{
 			glfwGetFramebufferSize(window, &fbwidth_, &fbheight_);	//set the initial framebuffer width and height
+			glfwGetWindowSize(window, &wwidth_, &wheight_);
 			glfwSetWindowUserPointer(window, this);		//Set the window pointer to be this InputManager for later use
 			glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 			glfwSetKeyCallback(window, keyCallback);	//Set callbacks

@@ -4,9 +4,10 @@
 
 #include <GL/glew.h>
 #include <GL/GL.h>
-#include "../../stdafx.h"
-#include "../../OSE-Core/Rendering/RenderingEngine.h"
-#include "../../OSE-Core/EngineDependencies/glm/glm.hpp"
+#include "OSE-Core/Rendering/RenderingEngine.h"
+#include "OSE-Core/EngineDependencies/glm/glm.hpp"
+#include "RenderObjectGL.h"
+#include "TextureGL.h"
 
 namespace ose::rendering
 {
@@ -18,13 +19,12 @@ namespace ose::rendering
 		RenderingEngineGL();
 		virtual ~RenderingEngineGL();
 
-		virtual void render();
-
-		//add entities render components to render objects
-		virtual void addEntityRenderObject(std::vector<Entity> & entities);
-
-		//clear the list of entity render object
-		virtual void clearEntityRenderObjects(const Entity & entity);
+		// Engine::update method overriden
+		// used to render the game
+		// called every game update for every render object in pool
+		///template <RenderObjectGL>
+		///virtual void update(RenderObjectGL & render_object) override;
+		virtual void update(RenderObjectGL &);
 
 	private:
 		//load OpenGL functions using GLEW
@@ -36,12 +36,6 @@ namespace ose::rendering
 
 		void updateOrthographicProjectionMatrix(const int fbwidth, const int fbheight) override;
 		void updatePerspectiveProjectionMatrix(const float fovyDeg, const int fbwidth, const int fbheight, const float znear, const float zfar) override;
-
-		//create a rendering engine specific texture object for a ose texture object
-		void createTexture(const Texture & texture) override;
-
-		//delete a rendering engine specific texture object
-		void deleteTexture(const Texture & texture) override;
 
 		//TODO - remove test list and replace with render object system
 		//std::vector<SpriteRenderer> sprites;

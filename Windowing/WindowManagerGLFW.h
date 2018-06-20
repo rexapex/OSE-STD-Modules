@@ -24,6 +24,8 @@ namespace ose::windowing
 
 		const int getFramebufferWidth() const { return fbwidth_; }
 		const int getFramebufferHeight() const { return fbheight_; }
+		const int getWindowWidth() const { return wwidth_; }
+		const int getWindowHeight() const { return wheight_; }
 
 		std::vector<VideoMode> getAvailableVideoModes();
 
@@ -36,7 +38,7 @@ namespace ose::windowing
 
 		void setNumSamples(int numSamples);
 
-		//void *  get_window() const;
+		const GLFWwindow & get_window() const { return *window; }
 		void createWindow(int windowMode, int video_mode);
 
 		void update();
@@ -47,7 +49,8 @@ namespace ose::windowing
 
 		GLFWwindow * window;
 
-		int fbwidth_, fbheight_;
+		int fbwidth_, fbheight_;	// framebuffer width & height
+		int wwidth_, wheight_;		// window width & height
 
 		static void framebufferSizeCallback(GLFWwindow * window, int width, int height);
 		static void windowPosCallback(GLFWwindow * window, int x, int y);

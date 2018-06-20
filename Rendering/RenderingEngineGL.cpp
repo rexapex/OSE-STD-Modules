@@ -1,10 +1,11 @@
-#include "../../stdafx.h"
+#include "stdafx.h"
 #include "RenderingEngineGL.h"
 
 namespace ose::rendering
 {
 	RenderingEngineGL::RenderingEngineGL() : RenderingEngine()
 	{
+		// NOTE - if RenderingEngineGL is made multithreadable, may need to move this
 		initGLEW();
 	}
 
@@ -14,7 +15,7 @@ namespace ose::rendering
 	{
 		DEBUG_LOG("updating othographic projection matrix");
 		float aspect_ratio = (float)fbwidth/(float)fbheight;
-		//setting glOrtho and glViewport in the following ways worked in testing
+		// setting glOrtho and glViewport in the following ways worked in testing
 		projection_matrix_ = glm::ortho(-(float)fbwidth/2 * aspect_ratio, (float)fbwidth/2 * aspect_ratio, -(float)fbheight/2 * aspect_ratio, (float)fbheight/2 * aspect_ratio);
 		glViewport(0, 0, fbwidth, fbheight);
 	}
@@ -22,61 +23,42 @@ namespace ose::rendering
 	void RenderingEngineGL::updatePerspectiveProjectionMatrix(const float fovyDeg, const int fbwidth, const int fbheight, const float znear, const float zfar)
 	{
 		DEBUG_LOG("updating perspective projection matrix");
-		projection_matrix_ = glm::perspective(glm::radians(fovyDeg), (float)fbwidth/(float)fbheight, znear, zfar);	//TODO - test aspect ratio is correct for a variety of resolutions
-		glViewport(0, 0, fbwidth, fbheight);	//still required with shaders as far as I'm aware
+		// TODO - test aspect ratio is correct for a variety of resolutions
+		projection_matrix_ = glm::perspective(glm::radians(fovyDeg), (float)fbwidth/(float)fbheight, znear, zfar);
+		glViewport(0, 0, fbwidth, fbheight);	// still required with shaders as far as I'm aware
 	}
 
-	//add entities render components to render objects
-	void RenderingEngineGL::addEntityRenderObject(std::vector<Entity> & entities)
-	{
-		//for(Entity & e : entities)
-		{
-			//for(std::unique_ptr<SpriteRenderer> & r : e.get_components())
-			{
-
-			}
-		}
-	}
-
-	//clear the list of entity render object
-	void RenderingEngineGL::clearEntityRenderObjects(const Entity & entity)
-	{
-
-	}
-
-	void RenderingEngineGL::render()
+	// override of Engine::update method
+	// used to render the game
+	void RenderingEngineGL::update(RenderObjectGL & render_object)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_TEXTURE_2D);
 		glMatrixMode(GL_MODELVIEW);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glLoadIdentity();
-		glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.0f,   1.0f);
-		glColor3f(0.0f, 1.0f, 0.0f);   glVertex2f(1.0f,  -1.0f);
-		glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(-1.0f, -1.0f);
+		glBindTexture(GL_TEXTURE_2D, render_object.gl_tex_id_);
+		//DEBUG_LOG(render_object.gl_tex_id_);
+		glBegin(GL_QUADS);
+		glTexCoord2i(1, 0);   glVertex2f(-0.5f,   0.5f);
+		glTexCoord2i(1, 1);   glVertex2f(-0.5f,  -0.5f);
+		glTexCoord2i(0, 1);   glVertex2f(0.5f, -0.5f);
+		glTexCoord2i(0, 0);   glVertex2f(0.5f, 0.5f);
 		glEnd();
 	}
 
-	//create a rendering engine specific texture object for a ose texture object
-	void RenderingEngineGL::createTexture(const Texture & texture)
-	{
-	}
-
-	//delete a rendering engine specific texture object
-	void RenderingEngineGL::deleteTexture(const Texture & texture)
-	{
-	}
-
-	//load OpenGL functions using GLEW
-	//return of 0 = success, return of -1 = error
+	// load OpenGL functions using GLEW
+	// return of 0 = success, return of -1 = error
 	int RenderingEngineGL::initGLEW()
 	{
 		GLenum err = glewInit();
 		if(GLEW_OK != err)
 		{
-			//GLEW Initialisation failed
+			// GLEW Initialisation failed
 			fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-			return -1;		//return with error
+			return -1;		// return with error
 		}
 		fprintf(stderr, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
@@ -99,6 +81,6 @@ namespace ose::rendering
 			}
 		}
 
-		return 0;			//return with success
+		return 0;			// return with success
 	}
 }
