@@ -6,6 +6,8 @@ namespace ose::editor
 	EditorDearIMGUI::EditorDearIMGUI(const WindowManager & windowManager)
 	{
 		setup(windowManager);
+		editor_resource_manager_ = std::make_unique<ResourceManager>("D:\\James\\Documents\\Visual Studio 2017\\Projects\\OSE V2\\OSE V2\\OSE-V2-STD-Modules\\Editor");
+		launcher_ = std::make_unique<Launcher>(*this);
 	}
 
 	EditorDearIMGUI::~EditorDearIMGUI()
@@ -23,25 +25,7 @@ namespace ose::editor
 
 		ImGui::NewFrame();
 
-		// 1. Show a simple window.
-		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
-		{
-			static float f = 0.0f;
-			static int counter = 0;
-			ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		}
+		launcher_->render();
 
 		ImGui::Render();
 	}

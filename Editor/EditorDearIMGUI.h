@@ -3,6 +3,8 @@
 #include "OSE-Core/Engine/DataObject.h"
 #include "OSE-V2-STD-Modules/EngineDependencies/imgui/imgui.h"
 #include "OSE-Core/Windowing/WindowManager.h"
+#include "OSE-Core/Resources/ResourceManager.h"
+#include "Launcher/Launcher.h"
 
 namespace ose::editor
 {
@@ -26,5 +28,15 @@ namespace ose::editor
 		*   I/O between your application and ImGui.
 		*/
 		void EditorDearIMGUI::setup(const WindowManager & windowManager);
+
+		// get a reference to the editor's resource manager
+		// manages textures, etc. used only by the editor
+		ResourceManager & get_editor_resource_manager() const { return *editor_resource_manager_; }
+
+	private:
+		std::unique_ptr<ResourceManager> editor_resource_manager_;
+
+		// GUI used for the launcher
+		std::unique_ptr<Launcher> launcher_;
 	};
 }
