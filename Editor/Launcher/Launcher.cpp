@@ -5,27 +5,27 @@ namespace ose::editor
 {
 	Launcher::Launcher(EditorDearIMGUI & editor) : Widget(editor)
 	{
-		editor.get_editor_resource_manager().addTexture("Games.png");
-		editor.get_editor_resource_manager().addTexture("Profiles.png");
-		editor.get_editor_resource_manager().addTexture("Settings.png");
-		editor.get_editor_resource_manager().createTextures();
+		editor.GetEditorResourceManager().AddTexture("Games.png");
+		editor.GetEditorResourceManager().AddTexture("Profiles.png");
+		editor.GetEditorResourceManager().AddTexture("Settings.png");
+		editor.GetEditorResourceManager().CreateTextures();
 
 		// TODO - this relies on the texture being of type TextureGL, maybe this can be ported to D3D / Vulkan
-		games_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.get_editor_resource_manager().getTexture("Games.png"))->get_gl_tex_id());
-		profiles_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.get_editor_resource_manager().getTexture("Profiles.png"))->get_gl_tex_id());
-		settings_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.get_editor_resource_manager().getTexture("Settings.png"))->get_gl_tex_id());
+		games_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Games.png"))->GetGlTexId());
+		profiles_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Profiles.png"))->GetGlTexId());
+		settings_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Settings.png"))->GetGlTexId());
 	}
 
 	Launcher::~Launcher()
 	{
 		// IMPORTANT - hopefully no other GUI using these textures at the same time
-		editor_.get_editor_resource_manager().removeTexture("Games.png");
-		editor_.get_editor_resource_manager().removeTexture("Profiles.png");
-		editor_.get_editor_resource_manager().removeTexture("Settings.png");
+		editor_.GetEditorResourceManager().RemoveTexture("Games.png");
+		editor_.GetEditorResourceManager().RemoveTexture("Profiles.png");
+		editor_.GetEditorResourceManager().RemoveTexture("Settings.png");
 	}
 
 	// render the Launcher window
-	void Launcher::render()
+	void Launcher::Render()
 	{
 		bool my_tool_active = true;
 

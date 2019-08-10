@@ -1,6 +1,6 @@
 #pragma once
 #include "OSE-Core/Editor/Editor.h"
-#include "OSE-Core/Engine/DataObject.h"
+#include "OSE-Core/Engine/EngineTask.h"
 #include "OSE-V2-STD-Modules/EngineDependencies/imgui/imgui.h"
 #include "OSE-Core/Windowing/WindowManager.h"
 #include "OSE-Core/Resources/ResourceManager.h"
@@ -19,7 +19,7 @@ namespace ose::editor
 
 		// called every game update for every data object in pool
 		// obj is a stub object and will not be used
-		void update(DataObject & obj) override;
+		///void update(EngineTask & obj) override;
 
 		// https://github.com/ocornut/imgui/wiki/Getting-Started
 		/*! /brief Initialise the ImGuiIO struct.
@@ -27,11 +27,11 @@ namespace ose::editor
 		*   The ImGuiIO struct is the main configuration and
 		*   I/O between your application and ImGui.
 		*/
-		void EditorDearIMGUI::setup(const WindowManager & windowManager);
+		void EditorDearIMGUI::Setup(const WindowManager & windowManager);
 
 		// get a reference to the editor's resource manager
 		// manages textures, etc. used only by the editor
-		ResourceManager & get_editor_resource_manager() const { return *editor_resource_manager_; }
+		ResourceManager & GetEditorResourceManager() const { return *editor_resource_manager_; }
 
 	private:
 		std::unique_ptr<ResourceManager> editor_resource_manager_;

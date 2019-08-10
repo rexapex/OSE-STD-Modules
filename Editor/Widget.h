@@ -9,7 +9,7 @@ namespace ose::editor
 	{
 	public:
 		Widget(EditorDearIMGUI & editor) : editor_(editor) {}
-		virtual void render() = 0;
+		virtual void Render() = 0;
 
 	protected:
 		EditorDearIMGUI & editor_;

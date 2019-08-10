@@ -11,7 +11,7 @@ namespace ose::editor
 		~Launcher();
 
 		// render the Launcher window
-		void render();
+		void Render();
 
 	private:
 		ImTextureID games_texture_id_;

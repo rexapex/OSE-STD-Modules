@@ -15,12 +15,12 @@ namespace ose::project
 	}
 
 
-	std::unique_ptr<rapidxml::xml_document<>> ProjectLoaderXML::loadXMLFile(const std::string & path, std::string & contents)
+	std::unique_ptr<rapidxml::xml_document<>> ProjectLoaderXML::LoadXmlFile(const std::string & path, std::string & contents)
 	{
 		//load the xml string
 		try
 		{
-			FileHandlingUtil::loadTextFile(path, contents);
+			FileHandlingUtil::LoadTextFile(path, contents);
 		}
 		catch(const std::exception & e)
 		{
@@ -39,25 +39,25 @@ namespace ose::project
 	}
 
 
-	std::unique_ptr<Project> ProjectLoaderXML::loadProject(const std::string & project_name)
+	std::unique_ptr<Project> ProjectLoaderXML::LoadProject(const std::string & project_name)
 	{
 		std::string home_dir;
-		FileHandlingUtil::getHomeDirectory(home_dir);
+		FileHandlingUtil::GetHomeDirectory(home_dir);
 
 		//TODO - FIND DOCUMENT DIRECTORY FOR MAC & LINUX - DONE - NEEDS TESTING
 		//TODO - CREATE DIRECTORIES IF THEY DON'T EXIST  - DONE - NEEDS TESTING
 		std::string project_path = home_dir + "/Origami_Sheep_Engine/Projects/" + project_name;
-		FileHandlingUtil::createDirs(project_path);
+		FileHandlingUtil::CreateDirs(project_path);
 		LOG("Loading Project Directory: " << project_path << std::endl);
 
 		//first, load the manifest
-		std::unique_ptr<ProjectInfo> manifest = loadProjectManifest(project_path);
+		std::unique_ptr<ProjectInfo> manifest = LoadProjectManifest(project_path);
 
 		//then, load the scene declerations
-		std::unique_ptr<std::map<std::string, std::string>> scene_declerations = loadSceneDeclerations(project_path);
+		std::unique_ptr<std::map<std::string, std::string>> scene_declerations = LoadSceneDeclerations(project_path);
 
 		//then, load the tag definitions
-		std::unique_ptr<Tag> root_tag = loadTagDefinitions(project_path);
+		std::unique_ptr<Tag> root_tag = LoadTagDefinitions(project_path);
 
 		//finally, construct a new project instance
 		std::unique_ptr<Project> proj = std::make_unique<Project>(project_path, *manifest, *scene_declerations);
@@ -66,7 +66,7 @@ namespace ose::project
 	}
 
 
-	std::unique_ptr<ProjectInfo> ProjectLoaderXML::loadProjectManifest(const std::string & project_path)
+	std::unique_ptr<ProjectInfo> ProjectLoaderXML::LoadProjectManifest(const std::string & project_path)
 	{
 		using namespace rapidxml;
 
@@ -75,7 +75,7 @@ namespace ose::project
 
 		try
 		{
-			doc = loadXMLFile(project_path + "/info.xml", contents);
+			doc = LoadXmlFile(project_path + "/info.xml", contents);
 		}
 		catch(const std::exception & e)
 		{
@@ -115,7 +115,7 @@ namespace ose::project
 
 
 
-	std::unique_ptr<std::map<std::string, std::string>> ProjectLoaderXML::loadSceneDeclerations(const std::string & project_path)
+	std::unique_ptr<std::map<std::string, std::string>> ProjectLoaderXML::LoadSceneDeclerations(const std::string & project_path)
 	{
 		using namespace rapidxml;
 
@@ -125,7 +125,7 @@ namespace ose::project
 		
 		try
 		{
-			doc = loadXMLFile(project_path + "/scene_declerations.xml", contents);
+			doc = LoadXmlFile(project_path + "/scene_declerations.xml", contents);
 		}
 		catch(const std::exception & e)
 		{
@@ -155,7 +155,7 @@ namespace ose::project
 	}
 
 
-	std::unique_ptr<Tag> ProjectLoaderXML::loadTagDefinitions(const std::string & project_path)
+	std::unique_ptr<Tag> ProjectLoaderXML::LoadTagDefinitions(const std::string & project_path)
 	{
 		using namespace rapidxml;
 
@@ -164,7 +164,7 @@ namespace ose::project
 
 		try
 		{
-			doc = loadXMLFile(project_path + "/tags.xml", contents);
+			doc = LoadXmlFile(project_path + "/tags.xml", contents);
 		}
 		catch(const std::exception & e)
 		{
@@ -182,7 +182,7 @@ namespace ose::project
 
 		for(auto tag_node = doc->first_node("tag"); tag_node; tag_node = tag_node->next_sibling("tag"))
 		{
-			parseTag(root_tag->get_sub_tags(), tag_node);
+			ParseTag(root_tag->GetSubTags(), tag_node);
 		}
 
 		DEBUG_LOG("");
@@ -191,7 +191,7 @@ namespace ose::project
 	}
 
 
-	void ProjectLoaderXML::parseTag(std::vector<Tag> & tags, rapidxml::xml_node<> * tag_node)
+	void ProjectLoaderXML::ParseTag(std::vector<Tag> & tags, rapidxml::xml_node<> * tag_node)
 	{
 		using namespace rapidxml;
 
@@ -203,29 +203,29 @@ namespace ose::project
 		//add the tags to the tags list
 		tags.emplace_back(name);
 		auto & new_tag = tags.back();
-		auto & sub_list = new_tag.get_sub_tags();
+		auto & sub_list = new_tag.GetSubTags();
 
 		//parse any sub-tags
 		for(auto sub_tag_node = tag_node->first_node("tag"); sub_tag_node; sub_tag_node = sub_tag_node->next_sibling("tag"))
 		{
-			parseTag(sub_list, sub_tag_node);
+			ParseTag(sub_list, sub_tag_node);
 		}
 	}
 
 
-	void ProjectLoaderXML::loadProjectSettings(const std::string & project_path)
+	void ProjectLoaderXML::LoadProjectSettings(const std::string & project_path)
 	{
 		//TODO
 	}
 
 
-	void ProjectLoaderXML::loadInputSettings(const std::string & project_path)
+	void ProjectLoaderXML::LoadInputSettings(const std::string & project_path)
 	{
 		//TODO
 	}
 
 
-	std::unique_ptr<Scene> ProjectLoaderXML::loadScene(const Project & project, const std::string & scene_name)
+	std::unique_ptr<Scene> ProjectLoaderXML::LoadScene(const Project & project, const std::string & scene_name)
 	{
 		using namespace rapidxml;
 
@@ -234,13 +234,13 @@ namespace ose::project
 		std::string scene_path;
 
 		// Game ensures scene exists therefore do not need to check here
-		auto map = project.get_scene_names_to_path_map();
+		auto map = project.GetSceneNamesToPathMap();
 		auto pos = map.find(scene_name);
-		scene_path = project.get_project_path() + "/" + pos->second + ".xml";
+		scene_path = project.GetProjectPath() + "/" + pos->second + ".xml";
 
 		try
 		{
-			doc = loadXMLFile(scene_path, contents);
+			doc = LoadXmlFile(scene_path, contents);
 		}
 		catch(const std::exception & e)
 		{
@@ -259,28 +259,28 @@ namespace ose::project
 
 		// map of aliases (lhs = alias, rhs = replacement), only applicable to current file
 		std::unordered_map<std::string, std::string> aliases;
-		parseResources(resources_node, aliases, project);
+		ParseResources(resources_node, aliases, project);
 		
 		// load the scene's entities
 		if(entities_node != nullptr) {
 			for(auto entity_node = entities_node->first_node("entity"); entity_node; entity_node = entity_node->next_sibling("entity"))
 			{
 				// create the entity then move it's pointer to the scene
-				auto entity = parseEntity(entity_node, aliases, project);
+				auto entity = ParseEntity(entity_node, aliases, project);
 				if(entity != nullptr) {
-					scene->entities().add(std::move(entity));
+					scene->entities().AddEntity(std::move(entity));
 				}
 			}
 		}
 
 		// remove the temporary prefabs since they were only needed for scene loading
-		project.get_prefab_manager().clearTempPrefabs();
+		project.GetPrefabManager().ClearTempPrefabs();
 
 		return scene;
 	}
 
 
-	std::unique_ptr<Entity> ProjectLoaderXML::loadEntityPrefab(const std::string & prefab_path, const Project & project)
+	std::unique_ptr<Entity> ProjectLoaderXML::LoadEntityPrefab(const std::string & prefab_path, const Project & project)
 	{
 		using namespace rapidxml;
 
@@ -290,7 +290,7 @@ namespace ose::project
 		try
 		{
 			//load the prefab from its xml file
-			doc = loadXMLFile(project.get_project_path() + "/" + prefab_path + file_extension, contents);
+			doc = LoadXmlFile(project.GetProjectPath() + "/" + prefab_path + file_extension, contents);
 		}
 		catch(const std::exception & e)
 		{
@@ -303,13 +303,13 @@ namespace ose::project
 
 		// map of aliases (lhs = alias, rhs = replacement), only applicable to current file
 		std::unordered_map<std::string, std::string> prefab_aliases;
-		parseResources(resources_node, prefab_aliases, project);
+		ParseResources(resources_node, prefab_aliases, project);
 
 		// load the prefab entity as an Entity object
-		auto output_entity = parseEntity(entity_node, prefab_aliases, project);
+		auto output_entity = ParseEntity(entity_node, prefab_aliases, project);
 
 		// check the entity was successfully loaded and that the name is unique
-		if(output_entity && !project.get_prefab_manager().doesPrefabExist(prefab_path)) {
+		if(output_entity && !project.GetPrefabManager().DoesPrefabExist(prefab_path)) {
 			return std::move(output_entity);
 		}
 
@@ -318,7 +318,7 @@ namespace ose::project
 
 
 	// returns: Entity object created
-	std::unique_ptr<Entity> ProjectLoaderXML::parseEntity(rapidxml::xml_node<> * entity_node,
+	std::unique_ptr<Entity> ProjectLoaderXML::ParseEntity(rapidxml::xml_node<> * entity_node,
 			std::unordered_map<std::string, std::string> & aliases, const Project & project)
 	{
 		using namespace rapidxml;
@@ -347,10 +347,10 @@ namespace ose::project
 		else
 		{
 			// else, use the existing prefab object as a template
-			if(project.get_prefab_manager().doesPrefabExist(prefab))
+			if(project.GetPrefabManager().DoesPrefabExist(prefab))
 			{
-				const auto & prefab_object = project.get_prefab_manager().getPrefab(prefab);
-				DEBUG_LOG("Entity " << name << " extends " << prefab_object.get_name() << std::endl);
+				const auto & prefab_object = project.GetPrefabManager().GetPrefab(prefab);
+				DEBUG_LOG("Entity " << name << " extends " << prefab_object.GetName() << std::endl);
 				new_entity = std::make_unique<Entity>(prefab_object);	// create object from copy of prefab
 				new_entity->set_name(name);
 				new_entity->set_tag(tag);
@@ -377,9 +377,9 @@ namespace ose::project
 			const auto texture_text_alias_pos { aliases.find(texture_text) };
 			const std::string & texture { texture_text_alias_pos == aliases.end() ? texture_text : texture_text_alias_pos->second };
 
-			const Texture * tex = project.get_resource_manager().getTexture(texture);
+			const Texture * tex = project.GetResourceManager().GetTexture(texture);
 			if(tex != nullptr) {
-				new_entity->addComponent<SpriteRenderer>(name, *tex);
+				new_entity->AddComponent<SpriteRenderer>(name, *tex);
 			} else {
 				ERROR_LOG("Error: texture " << texture << " has not been loaded");
 			}
@@ -406,14 +406,14 @@ namespace ose::project
 		for(auto sub_entity_node = entity_node->first_node("entity"); sub_entity_node; sub_entity_node = sub_entity_node->next_sibling("entity"))
 		{
 			// create the sub entity then move it's pointer to the new_entity
-			auto sub_entity = parseEntity(sub_entity_node, aliases, project);
-			new_entity->sub_entities().add(std::move(sub_entity));
+			auto sub_entity = ParseEntity(sub_entity_node, aliases, project);
+			new_entity->AddEntity(std::move(sub_entity));
 		}
 
 		return std::move(new_entity);
 	}
 
-	void ProjectLoaderXML::parseResources(rapidxml::xml_node<> * resources_node, std::unordered_map<std::string, std::string> & aliases, const Project & project)
+	void ProjectLoaderXML::ParseResources(rapidxml::xml_node<> * resources_node, std::unordered_map<std::string, std::string> & aliases, const Project & project)
 	{
 		// parse texture nodes
 		for(auto texture_node { resources_node->first_node("texture") }; texture_node; texture_node = texture_node->next_sibling("texture"))
@@ -431,7 +431,7 @@ namespace ose::project
 					aliases.insert({ tex_alias, tex_path });
 				}
 
-				project.get_resource_manager().addTexture(tex_path, "");	// TODO - remove name_ field from texture class
+				project.GetResourceManager().AddTexture(tex_path, "");	// TODO - remove name_ field from texture class
 			}
 		}
 
@@ -455,9 +455,9 @@ namespace ose::project
 				// and if so, then load the corresponding prefab file and add it to the map
 				// NOTE - currently only check existence of attribute rather than whether it's value is true or false
 				if(prefab_is_cached) {
-					project.get_prefab_manager().addCachedPrefab(std::move(loadEntityPrefab(prefab_path, project)), prefab_path);
+					project.GetPrefabManager().AddCachedPrefab(std::move(LoadEntityPrefab(prefab_path, project)), prefab_path);
 				} else {
-					project.get_prefab_manager().addTempPrefab(std::move(loadEntityPrefab(prefab_path, project)), prefab_path);
+					project.GetPrefabManager().AddTempPrefab(std::move(LoadEntityPrefab(prefab_path, project)), prefab_path);
 				}
 			}
 		}

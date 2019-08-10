@@ -6,7 +6,7 @@ namespace ose::windowing
 {
 	WindowManagerGLFW::WindowManagerGLFW()
 	{
-		if(initWindowingToolkit() == -1)
+		if(InitWindowingToolkit() == -1)
 			fprintf(stderr, "Error: %s\n", "Failed to initialise GLFW");
 	}
 
@@ -24,7 +24,7 @@ namespace ose::windowing
 		fprintf(stderr, "Error: %s\n", description);
 	}
 
-	int WindowManagerGLFW::initWindowingToolkit() const
+	int WindowManagerGLFW::InitWindowingToolkit() const
 	{
 		glfwSetErrorCallback(errorCallback);
 
@@ -34,7 +34,7 @@ namespace ose::windowing
 		return 0;
 	}
 
-	std::vector<VideoMode> WindowManagerGLFW::getAvailableVideoModes()
+	std::vector<VideoMode> WindowManagerGLFW::GetAvailableVideoModes()
 	{
 		int count;
 		const GLFWvidmode * modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
@@ -48,7 +48,7 @@ namespace ose::windowing
 		return video_modes;
 	}
 
-	void WindowManagerGLFW::createWindow(int window_mode, int video_mode)
+	void WindowManagerGLFW::NewWindow(int window_mode, int video_mode)
 	{
 		GLFWwindow * window;
 
@@ -112,11 +112,11 @@ namespace ose::windowing
 			glfwGetFramebufferSize(window, &fbwidth_, &fbheight_);	//set the initial framebuffer width and height
 			glfwGetWindowSize(window, &wwidth_, &wheight_);
 			glfwSetWindowUserPointer(window, this);		//Set the window pointer to be this InputManager for later use
-			glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-			glfwSetKeyCallback(window, keyCallback);	//Set callbacks
+			glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+			glfwSetKeyCallback(window, KeyCallback);	//Set callbacks
 			//glfwSetWindowPosCallback(window, windowPosCallback);
 			//glfwSetCursorPosCallback(window, cursorPosCallback);
-			glfwSetMouseButtonCallback(window, mouseButtonCallback);
+			glfwSetMouseButtonCallback(window, MouseButtonCallback);
 			//glfwSetScrollCallback(window, mouseScrollCallback);
 			//glfwSetCharCallback(window, charCallback);
 
@@ -138,7 +138,7 @@ namespace ose::windowing
 
 
 
-	void WindowManagerGLFW::update()
+	void WindowManagerGLFW::Update()
 	{
 		//swap buffers to update the screen and then poll for new events
 		glfwSwapBuffers(window);
@@ -161,7 +161,7 @@ namespace ose::windowing
 
 
 
-	void WindowManagerGLFW::setTitle(const std::string & title)
+	void WindowManagerGLFW::SetTitle(const std::string & title)
 	{
 		glfwSetWindowTitle(window, title.c_str());
 	}
@@ -169,7 +169,7 @@ namespace ose::windowing
 
 
 
-	int WindowManagerGLFW::setMouseVisibility(int value)
+	int WindowManagerGLFW::SetMouseVisibility(int value)
 	{
 		if(value == 0)
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -183,66 +183,66 @@ namespace ose::windowing
 
 
 
-	void WindowManagerGLFW::setWindowSize(int width, int height)
+	void WindowManagerGLFW::SetWindowSize(int width, int height)
 	{
 		glfwSetWindowSize(window, width, height);
 	}
 
-	void WindowManagerGLFW::setWindowPos(int x, int y)
+	void WindowManagerGLFW::SetWindowPos(int x, int y)
 	{
 		glfwSetWindowPos(window, x, y);
 	}
 
 
 
-	void WindowManagerGLFW::setNumSamples(int numSamples)
+	void WindowManagerGLFW::SetNumSamples(int numSamples)
 	{
 
 	}
 
 
 
-	void WindowManagerGLFW::framebufferSizeCallback(GLFWwindow * window, int width, int height)
+	void WindowManagerGLFW::FramebufferSizeCallback(GLFWwindow * window, int width, int height)
 	{
 		WindowManagerGLFW * windowManager = reinterpret_cast<WindowManagerGLFW *>(glfwGetWindowUserPointer(window));
 		windowManager->fbwidth_ = width;
 		windowManager->fbheight_ = height;
-		windowManager->framebufferSizeCallbackImpl(width, height);
+		windowManager->FramebufferSizeCallbackImpl(width, height);
 	}
 
-	void WindowManagerGLFW::windowPosCallback(GLFWwindow * window, int x, int y)
+	void WindowManagerGLFW::WindowPosCallback(GLFWwindow * window, int x, int y)
 	{
 		WindowManagerGLFW * windowManager = reinterpret_cast<WindowManagerGLFW *>(glfwGetWindowUserPointer(window));	//Get the window user pointer
-		windowManager->windowPosCallbackImpl(x, y);
+		windowManager->WindowPosCallbackImpl(x, y);
 	}
 
-	void WindowManagerGLFW::cursorPosCallback(GLFWwindow * window, double xPos, double yPos)
+	void WindowManagerGLFW::CursorPosCallback(GLFWwindow * window, double xPos, double yPos)
 	{
 		WindowManagerGLFW * windowManager = reinterpret_cast<WindowManagerGLFW *>(glfwGetWindowUserPointer(window));	//Get the window user pointer
-		windowManager->cursorPosCallbackImpl(xPos, yPos);		//Forward the callback to the member implementation method
+		windowManager->CursorPosCallbackImpl(xPos, yPos);		//Forward the callback to the member implementation method
 	}
 
-	void WindowManagerGLFW::mouseButtonCallback(GLFWwindow * window, int button, int action, int mods)
+	void WindowManagerGLFW::MouseButtonCallback(GLFWwindow * window, int button, int action, int mods)
 	{
 		WindowManagerGLFW * windowManager = reinterpret_cast<WindowManagerGLFW *>(glfwGetWindowUserPointer(window));	//Get the window user pointer
-		windowManager->mouseButtonCallbackImpl(button, action, mods);		//Forward the callback to the member implementation method
+		windowManager->MouseButtonCallbackImpl(button, action, mods);		//Forward the callback to the member implementation method
 	}
 
-	void WindowManagerGLFW::mouseScrollCallback(GLFWwindow * window, double xOffset, double yOffset)
+	void WindowManagerGLFW::MouseScrollCallback(GLFWwindow * window, double xOffset, double yOffset)
 	{
 		WindowManagerGLFW * inputManager = reinterpret_cast<WindowManagerGLFW *>(glfwGetWindowUserPointer(window));	//Get the window user pointer
-		inputManager->mouseScrollCallbackImpl(xOffset, yOffset);		//Forward the callback to the member implementation method
+		inputManager->MouseScrollCallbackImpl(xOffset, yOffset);		//Forward the callback to the member implementation method
 	}
 
-	void WindowManagerGLFW::keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)	//Receives input from the window
+	void WindowManagerGLFW::KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)	//Receives input from the window
 	{
 		WindowManagerGLFW * windowManager = reinterpret_cast<WindowManagerGLFW *>(glfwGetWindowUserPointer(window));	//Get the window user pointer
-		windowManager->keyCallbackImpl(key, scancode, action, mods);		//Forward the callback to the member implementation method
+		windowManager->KeyCallbackImpl(key, scancode, action, mods);		//Forward the callback to the member implementation method
 	}
 
-	void WindowManagerGLFW::charCallback(GLFWwindow * window, unsigned int codePoint)
+	void WindowManagerGLFW::CharCallback(GLFWwindow * window, unsigned int codePoint)
 	{
 		WindowManagerGLFW * windowManager = reinterpret_cast<WindowManagerGLFW *>(glfwGetWindowUserPointer(window));	//Get the window user pointer
-		windowManager->charCallbackImpl(codePoint);								//Forward the callback to the member implementation method
+		windowManager->CharCallbackImpl(codePoint);								//Forward the callback to the member implementation method
 	}
 }

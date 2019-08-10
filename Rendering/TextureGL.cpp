@@ -5,23 +5,23 @@
 namespace ose::rendering
 {
 	// bind the texture ready for rendering
-	void TextureGL::bind()
+	void TextureGL::Bind()
 	{
 		glBindTexture(GL_TEXTURE_2D, gl_tex_id_);
 	}
 
 	// create the texture in GPU memory
 	// IMPORTANT - cannot be called from constructor since the ResourceLoader is multithreaded but the rendering context is not
-	void TextureGL::createTexture()
+	void TextureGL::CreateTexture()
 	{
 		// first, make sure any existing texture is freed
-		destroyTexture();
+		DestroyTexture();
 
 		// then, create the new OpenGL texture
 		glGenTextures(1, &gl_tex_id_);
 
 		// set the contents of the texture
-		bind();
+		Bind();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data_);
 
 		// TODO - add support for Anisotropic filtering
@@ -80,7 +80,7 @@ namespace ose::rendering
 	// free the texture from GPU memory
 	// IMPORTANT - cannot be called from destructor since the ResourceManager is multithreaded but the rendering context is not
 	// IMPORTANT - failure to call this may result in GPU memory leaks
-	void TextureGL::destroyTexture()
+	void TextureGL::DestroyTexture()
 	{
 		// check that the gl_tex_id_ is valid
 		if(gl_tex_id_ != 0)

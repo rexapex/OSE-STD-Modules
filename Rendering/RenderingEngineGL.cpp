@@ -5,13 +5,14 @@ namespace ose::rendering
 {
 	RenderingEngineGL::RenderingEngineGL() : RenderingEngine()
 	{
-		// NOTE - if RenderingEngineGL is made multithreadable, may need to move this
-		initGLEW();
+		// NOTE - If RenderingEngineGL is made multithreadable, may need to move this
+		// TODO - Only load GLEW if used OpenGL functions are not available
+		InitGlew();
 	}
 
 	RenderingEngineGL::~RenderingEngineGL() {}
 
-	void RenderingEngineGL::updateOrthographicProjectionMatrix(const int fbwidth, const int fbheight)
+	void RenderingEngineGL::UpdateOrthographicProjectionMatrix(const int fbwidth, const int fbheight)
 	{
 		DEBUG_LOG("updating othographic projection matrix");
 		float aspect_ratio = (float)fbwidth/(float)fbheight;
@@ -20,7 +21,7 @@ namespace ose::rendering
 		glViewport(0, 0, fbwidth, fbheight);
 	}
 
-	void RenderingEngineGL::updatePerspectiveProjectionMatrix(const float fovyDeg, const int fbwidth, const int fbheight, const float znear, const float zfar)
+	void RenderingEngineGL::UpdatePerspectiveProjectionMatrix(const float fovyDeg, const int fbwidth, const int fbheight, const float znear, const float zfar)
 	{
 		DEBUG_LOG("updating perspective projection matrix");
 		// TODO - test aspect ratio is correct for a variety of resolutions
@@ -30,7 +31,7 @@ namespace ose::rendering
 
 	// override of Engine::update method
 	// used to render the game
-	void RenderingEngineGL::update(RenderObjectGL & render_object)
+	/*void RenderingEngineGL::update(RenderObjectGL & render_object)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_BACK);
@@ -47,11 +48,11 @@ namespace ose::rendering
 		glTexCoord2i(0, 1);   glVertex2f(0.5f, -0.5f);
 		glTexCoord2i(0, 0);   glVertex2f(0.5f, 0.5f);
 		glEnd();
-	}
+	}*/
 
 	// load OpenGL functions using GLEW
 	// return of 0 = success, return of -1 = error
-	int RenderingEngineGL::initGLEW()
+	int RenderingEngineGL::InitGlew()
 	{
 		GLenum err = glewInit();
 		if(GLEW_OK != err)

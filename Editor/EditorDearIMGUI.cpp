@@ -5,7 +5,7 @@ namespace ose::editor
 {
 	EditorDearIMGUI::EditorDearIMGUI(const WindowManager & windowManager)
 	{
-		setup(windowManager);
+		Setup(windowManager);
 		editor_resource_manager_ = std::make_unique<ResourceManager>("D:\\James\\Documents\\Visual Studio 2017\\Projects\\OSE V2\\OSE V2\\OSE-V2-STD-Modules\\Editor");
 		launcher_ = std::make_unique<Launcher>(*this);
 	}
@@ -17,7 +17,7 @@ namespace ose::editor
 
 	// called every game update for every data object in pool
 	// obj is a stub object and will not be used
-	void EditorDearIMGUI::update(DataObject & obj)
+	/*void EditorDearIMGUI::update(DataObject & obj)
 	{
 		bool show_demo_window = true;
 		bool show_another_window = false;
@@ -28,7 +28,7 @@ namespace ose::editor
 		launcher_->render();
 
 		ImGui::Render();
-	}
+	}*/
 
 	// https://github.com/ocornut/imgui/wiki/Getting-Started
 	/*! /brief Boilerplate function for OpenGL 2.0 rendering.
@@ -38,7 +38,7 @@ namespace ose::editor
 	*  into your projects, but should really be part of the
 	*  library itself?
 	*/
-	void renderer(ImDrawData* draw_data)
+	void Renderer(ImDrawData* draw_data)
 	{
 		ImGuiIO& io { ImGui::GetIO() };
 		int fb_width { (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x) };
@@ -117,7 +117,7 @@ namespace ose::editor
 	*   The ImGuiIO struct is the main configuration and
 	*   I/O between your application and ImGui.
 	*/
-	void EditorDearIMGUI::setup(const WindowManager & windowManager)
+	void EditorDearIMGUI::Setup(const WindowManager & windowManager)
 	{
 		unsigned char* pixels;
 		int width,
@@ -142,13 +142,13 @@ namespace ose::editor
 		// Get display size
 		// TODO - update window width & height on window resize callback
 		// TODO - refresh IMGUI width & height on fb resize & window resize
-		width = windowManager.getWindowWidth();
-		height = windowManager.getWindowHeight();
-		display_width = windowManager.getFramebufferWidth();
-		display_height = windowManager.getFramebufferHeight();
+		width = windowManager.GetWindowWidth();
+		height = windowManager.GetWindowHeight();
+		display_width = windowManager.GetFramebufferWidth();
+		display_height = windowManager.GetFramebufferHeight();
 
 		io.DisplaySize = ImVec2((float)width, (float)height);
-		io.RenderDrawListsFn = renderer;
+		io.RenderDrawListsFn = Renderer;
 		io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
 
 		// Restore state
