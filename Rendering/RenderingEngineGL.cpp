@@ -33,24 +33,33 @@ namespace ose::rendering
 	// Called every game update to render all object in the pool
 	void RenderingEngineGL::Update()
 	{
-		for(int i = 0; i < render_pool_.sps.size(); i++)
+		for(auto const & render_pass : render_pool_.GetRenderPasses())
 		{
-			auto sp = render_pool_.sps[i];
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glCullFace(GL_BACK);
-			glEnable(GL_CULL_FACE);
-			glEnable(GL_TEXTURE_2D);
-			glMatrixMode(GL_MODELVIEW);
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glLoadIdentity();
-			glBindTexture(GL_TEXTURE_2D, static_cast<TextureGL const *>(sp->GetTexture())->GetGlTexId());
-			//DEBUG_LOG(render_object.gl_tex_id_);
-			glBegin(GL_QUADS);
-			glTexCoord2i(1, 0);   glVertex2f(-0.5f,   0.5f);
-			glTexCoord2i(1, 1);   glVertex2f(-0.5f,  -0.5f);
-			glTexCoord2i(0, 1);   glVertex2f(0.5f, -0.5f);
-			glTexCoord2i(0, 0);   glVertex2f(0.5f, 0.5f);
-			glEnd();
+			for(auto const & shader_group : render_pass.shader_groups_)
+			{
+				for(auto const & render_object : shader_group.render_objects_)
+				{
+					for(auto const texture : render_object.textures_)
+					{
+						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+						glCullFace(GL_BACK);
+						glEnable(GL_CULL_FACE);
+						glEnable(GL_TEXTURE_2D);
+						glMatrixMode(GL_MODELVIEW);
+						glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+						glLoadIdentity();
+						///texture->Bind();
+						glBindTexture(GL_TEXTURE_2D, texture->GetGlTexId());
+						//DEBUG_LOG(render_object.gl_tex_id_);
+						glBegin(GL_QUADS);
+						glTexCoord2i(1, 0);   glVertex2f(-0.5f,   0.5f);
+						glTexCoord2i(1, 1);   glVertex2f(-0.5f,  -0.5f);
+						glTexCoord2i(0, 1);   glVertex2f(0.5f, -0.5f);
+						glTexCoord2i(0, 0);   glVertex2f(0.5f, 0.5f);
+						glEnd();
+					}
+				}
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@
 namespace ose::rendering
 {
 	// bind the texture ready for rendering
-	void TextureGL::Bind()
+	void TextureGL::Bind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, gl_tex_id_);
 	}
