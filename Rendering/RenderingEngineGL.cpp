@@ -29,26 +29,30 @@ namespace ose::rendering
 		glViewport(0, 0, fbwidth, fbheight);	// still required with shaders as far as I'm aware
 	}
 
-	// override of Engine::update method
-	// used to render the game
-	/*void RenderingEngineGL::update(RenderObjectGL & render_object)
+	// Engine::update method overriden
+	// Called every game update to render all object in the pool
+	void RenderingEngineGL::Update()
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glCullFace(GL_BACK);
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_TEXTURE_2D);
-		glMatrixMode(GL_MODELVIEW);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glLoadIdentity();
-		glBindTexture(GL_TEXTURE_2D, render_object.gl_tex_id_);
-		//DEBUG_LOG(render_object.gl_tex_id_);
-		glBegin(GL_QUADS);
-		glTexCoord2i(1, 0);   glVertex2f(-0.5f,   0.5f);
-		glTexCoord2i(1, 1);   glVertex2f(-0.5f,  -0.5f);
-		glTexCoord2i(0, 1);   glVertex2f(0.5f, -0.5f);
-		glTexCoord2i(0, 0);   glVertex2f(0.5f, 0.5f);
-		glEnd();
-	}*/
+		for(int i = 0; i < render_pool_.sps.size(); i++)
+		{
+			auto sp = render_pool_.sps[i];
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glCullFace(GL_BACK);
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_TEXTURE_2D);
+			glMatrixMode(GL_MODELVIEW);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glLoadIdentity();
+			glBindTexture(GL_TEXTURE_2D, static_cast<TextureGL const *>(sp->GetTexture())->GetGlTexId());
+			//DEBUG_LOG(render_object.gl_tex_id_);
+			glBegin(GL_QUADS);
+			glTexCoord2i(1, 0);   glVertex2f(-0.5f,   0.5f);
+			glTexCoord2i(1, 1);   glVertex2f(-0.5f,  -0.5f);
+			glTexCoord2i(0, 1);   glVertex2f(0.5f, -0.5f);
+			glTexCoord2i(0, 0);   glVertex2f(0.5f, 0.5f);
+			glEnd();
+		}
+	}
 
 	// load OpenGL functions using GLEW
 	// return of 0 = success, return of -1 = error

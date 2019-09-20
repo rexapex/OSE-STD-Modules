@@ -352,8 +352,8 @@ namespace ose::project
 				const auto & prefab_object = project.GetPrefabManager().GetPrefab(prefab);
 				DEBUG_LOG("Entity " << name << " extends " << prefab_object.GetName() << std::endl);
 				new_entity = std::make_unique<Entity>(prefab_object);	// create object from copy of prefab
-				new_entity->set_name(name);
-				new_entity->set_tag(tag);
+				new_entity->SetName(name);
+				new_entity->SetTag(tag);
 			} else {
 				DEBUG_LOG("Prefab " << prefab << " does not exist");
 			}
@@ -379,7 +379,7 @@ namespace ose::project
 
 			const Texture * tex = project.GetResourceManager().GetTexture(texture);
 			if(tex != nullptr) {
-				new_entity->AddComponent<SpriteRenderer>(name, *tex);
+				new_entity->AddComponent<SpriteRenderer>(name, tex);
 			} else {
 				ERROR_LOG("Error: texture " << texture << " has not been loaded");
 			}

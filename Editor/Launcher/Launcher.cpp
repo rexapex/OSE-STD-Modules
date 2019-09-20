@@ -11,9 +11,9 @@ namespace ose::editor
 		editor.GetEditorResourceManager().CreateTextures();
 
 		// TODO - this relies on the texture being of type TextureGL, maybe this can be ported to D3D / Vulkan
-		games_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Games.png"))->GetGlTexId());
-		profiles_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Profiles.png"))->GetGlTexId());
-		settings_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Settings.png"))->GetGlTexId());
+//		games_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Games.png"))->GetGlTexId());
+//		profiles_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Profiles.png"))->GetGlTexId());
+//		settings_texture_id_ = ImTextureID(static_cast<const TextureImpl*>(editor.GetEditorResourceManager().GetTexture("Settings.png"))->GetGlTexId());
 	}
 
 	Launcher::~Launcher()

@@ -6,7 +6,7 @@
 #include <GL/GL.h>
 #include "OSE-Core/Rendering/RenderingEngine.h"
 #include "OSE-Core/EngineDependencies/glm/glm.hpp"
-#include "RenderTaskGL.h"
+#include "RenderPoolGL.h"
 #include "TextureGL.h"
 
 namespace ose::rendering
@@ -20,25 +20,26 @@ namespace ose::rendering
 		virtual ~RenderingEngineGL();
 
 		// Engine::update method overriden
-		// used to render the game
-		// called every game update for every render object in pool
-		///template <RenderObjectGL>
-		///virtual void update(RenderObjectGL & render_object) override;
-		///virtual void update(RenderObjectGL &);
+		// Called every game update to render all object in the pool
+		virtual void Update();
 
+		// Get a reference to the render pool, s.t. new render objects can be added
+		virtual RenderPool & GetRenderPool() { return render_pool_; }
+		
 	private:
-		//load OpenGL functions using GLEW
-		//return of 0 = success, return of -1 = error
+		// Load OpenGL functions using GLEW
+		// Return of 0 = success, return of -1 = error
 		static int InitGlew();
 
-		//the projection matrix, can be a perspective or an orthographic projection matrix
+		// The projection matrix, can be a perspective or an orthographic projection matrix
 		glm::mat4 projection_matrix_;
 
+		// The pool of object rendered each engine update
+		RenderPoolGL render_pool_;
+
+		// Child functions to update the projection matrix to either orthographic or perspective
 		void UpdateOrthographicProjectionMatrix(const int fbwidth, const int fbheight) override;
 		void UpdatePerspectiveProjectionMatrix(const float fovyDeg, const int fbwidth, const int fbheight, const float znear, const float zfar) override;
-
-		//TODO - remove test list and replace with render object system
-		//std::vector<SpriteRenderer> sprites;
 	};
 }
 
