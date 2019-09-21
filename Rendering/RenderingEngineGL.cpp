@@ -48,9 +48,7 @@ namespace ose::rendering
 						glMatrixMode(GL_MODELVIEW);
 						glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 						glLoadIdentity();
-						///texture->Bind();
 						glBindTexture(GL_TEXTURE_2D, texture->GetGlTexId());
-						//DEBUG_LOG(render_object.gl_tex_id_);
 						glBegin(GL_QUADS);
 						glTexCoord2i(1, 0);   glVertex2f(-0.5f,   0.5f);
 						glTexCoord2i(1, 1);   glVertex2f(-0.5f,  -0.5f);
