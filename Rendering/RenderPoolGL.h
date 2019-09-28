@@ -1,5 +1,6 @@
 #pragma once
 #include "OSE-Core/Rendering/RenderPool.h"
+#include "OSE-Core/Math/Transform.h"
 #include "RenderPassGL.h"
 
 namespace ose::rendering
@@ -10,8 +11,11 @@ namespace ose::rendering
 		RenderPoolGL();
 		~RenderPoolGL();
 
+		// Initialise the render pool
+		void Init();
+
 		// Add a sprite renderer component to the render pool
-		virtual void AddSpriteRenderer(ose::unowned_ptr<SpriteRenderer> sr);
+		virtual void AddSpriteRenderer(Transform const & t, ose::unowned_ptr<SpriteRenderer> sr);
 
 		// Get the list of render passes s.t. they can be rendered by the rendering engine
 		std::vector<RenderPassGL> const & GetRenderPasses() const { return render_passes_; }

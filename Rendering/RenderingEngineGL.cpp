@@ -8,6 +8,15 @@ namespace ose::rendering
 		// NOTE - If RenderingEngineGL is made multithreadable, may need to move this
 		// TODO - Only load GLEW if used OpenGL functions are not available
 		InitGlew();
+
+		// Initialise the render pool only once OpenGL has been intialised
+		render_pool_.Init();
+
+		// Set the default OpenGL settings
+		glDisable(GL_CULL_FACE);
+		///glCullFace(GL_BACK);
+		///glEnable(GL_CULL_FACE);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	RenderingEngineGL::~RenderingEngineGL() {}
@@ -35,34 +44,40 @@ namespace ose::rendering
 	{
 		for(auto const & render_pass : render_pool_.GetRenderPasses())
 		{
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			for(auto const & shader_group : render_pass.shader_groups_)
 			{
+				// Bind the shader used by the shader group
+				glUseProgram(shader_group.shader_prog_);
+
+				// Pass the view projection matrix to the shader program
+				glUniformMatrix4fv(glGetUniformLocation(shader_group.shader_prog_, "viewProjMatrix"), 1, GL_FALSE, glm::value_ptr(projection_matrix_));
+
+				// Render the render objects one by one
 				for(auto const & render_object : shader_group.render_objects_)
 				{
-					for(auto const texture : render_object.textures_)
+					// TODO - Allow a single render object to bind multiple textures simultaneously
+					for(size_t i = 0; i < render_object.transforms_.size(); i++)
 					{
-						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-						glCullFace(GL_BACK);
-						glEnable(GL_CULL_FACE);
-						glEnable(GL_TEXTURE_2D);
-						glMatrixMode(GL_MODELVIEW);
-						glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-						glLoadIdentity();
-						glBindTexture(GL_TEXTURE_2D, texture->GetGlTexId());
-						glBegin(GL_QUADS);
-						glTexCoord2i(1, 0);   glVertex2f(-0.5f,   0.5f);
-						glTexCoord2i(1, 1);   glVertex2f(-0.5f,  -0.5f);
-						glTexCoord2i(0, 1);   glVertex2f(0.5f, -0.5f);
-						glTexCoord2i(0, 0);   glVertex2f(0.5f, 0.5f);
-						glEnd();
+						// Pass the world transform of the object to the shader program
+						glUniformMatrix4fv(glGetUniformLocation(shader_group.shader_prog_, "worldTransform"), 1, GL_FALSE, glm::value_ptr(render_object.transforms_[i]));
+
+						// Bind the texture
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, render_object.textures_[i]->GetGlTexId());
+
+						// Render the object
+						glBindVertexArray(render_object.vao_);
+						glBindBuffer(GL_VERTEX_ARRAY, render_object.vbo_);
+						glDrawArrays(GL_QUADS, 0, 4);
 					}
 				}
 			}
 		}
 	}
 
-	// load OpenGL functions using GLEW
-	// return of 0 = success, return of -1 = error
+	// Load OpenGL functions using GLEW
+	// Return of 0 = success, return of -1 = error
 	int RenderingEngineGL::InitGlew()
 	{
 		GLenum err = glewInit();
