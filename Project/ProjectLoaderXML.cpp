@@ -1,5 +1,18 @@
 #include "stdafx.h"
 #include "ProjectLoaderXML.h"
+#include "OSE-Core/Resources/FileHandlingUtil.h"
+#include "OSE-Core/Project/ProjectInfo.h"
+#include "OSE-Core/Project/Project.h"
+#include "OSE-Core/Game/Tag.h"
+#include "OSE-Core/Game/Scene.h"
+#include "OSE-Core/Resources/Texture.h"
+#include "OSE-Core/Entity/SpriteRenderer.h"
+#include "OSE-Core/Resources/PrefabManager.h"
+#include "OSE-Core/Resources/ResourceManager.h"
+
+using namespace ose::game;
+using namespace ose::entity;
+using namespace ose::resources;
 
 namespace ose::project
 {
@@ -364,7 +377,53 @@ namespace ose::project
 			return nullptr;
 		}
 
-		// parse the components of the new entity
+		// parse the transform component of the new entity
+		for(auto component_node = entity_node->first_node("transform"); component_node; component_node = component_node->next_sibling("transform"))
+		{
+			try
+			{
+				// TODO - Include controls for settings the orientation
+				float x  { 0.0f };
+				float y  { 0.0f };
+				float z  { 0.0f };
+				float sx { 1.0f };
+				float sy { 1.0f };
+				float sz { 1.0f };
+
+				auto x_attrib = component_node->first_attribute("x");
+				if(x_attrib != nullptr)
+					x = std::stof(x_attrib->value());
+
+				auto y_attrib = component_node->first_attribute("y");
+				if(y_attrib != nullptr)
+					y = std::stof(y_attrib->value());
+
+				auto z_attrib = component_node->first_attribute("z");
+				if(z_attrib != nullptr)
+					z = std::stof(z_attrib->value());
+
+				auto sx_attrib = component_node->first_attribute("sx");
+				if(sx_attrib != nullptr)
+					sx = std::stof(sx_attrib->value());
+
+				auto sy_attrib = component_node->first_attribute("sy");
+				if(sy_attrib != nullptr)
+					sy = std::stof(sy_attrib->value());
+
+				auto sz_attrib = component_node->first_attribute("sz");
+				if(sz_attrib != nullptr)
+					sz = std::stof(sz_attrib->value());
+
+				new_entity->Translate(x, y, z);
+				new_entity->Scale(sx, sy, sz);
+			}
+			catch(std::exception &)
+			{
+				ERROR_LOG("Error: Failed to parse transform attribute as float, transform component ignored");
+			}
+		}
+
+		// parse the sprite renderer components of the new entity
 		for(auto component_node = entity_node->first_node("sprite_renderer"); component_node; component_node = component_node->next_sibling("sprite_renderer"))
 		{
 			// has name & texture attributes
@@ -381,7 +440,7 @@ namespace ose::project
 			if(tex != nullptr) {
 				new_entity->AddComponent<SpriteRenderer>(name, tex);
 			} else {
-				ERROR_LOG("Error: texture " << texture << " has not been loaded");
+				ERROR_LOG("Error: Texture " << texture << " has not been loaded");
 			}
 		}
 

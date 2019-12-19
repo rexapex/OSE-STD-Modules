@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "EditorDearIMGUI.h"
+#include "OSE-Core/Windowing/WindowManager.h"
+
+using namespace ose::windowing;
+using namespace ose::resources;
 
 namespace ose::editor
 {

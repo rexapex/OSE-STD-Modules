@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Launcher.h"
 
+#include "OSE-V2-STD-Modules/Editor/EditorDearIMGUI.h"
+
 namespace ose::editor
 {
 	Launcher::Launcher(EditorDearIMGUI & editor) : Widget(editor)

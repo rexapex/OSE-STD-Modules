@@ -1,5 +1,4 @@
 #pragma once
-#include "EditorDearIMGUI.h"
 
 namespace ose::editor
 {

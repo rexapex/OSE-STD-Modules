@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ShaderProgGLSL.h"
 
 namespace ose::shader
@@ -20,7 +20,7 @@ namespace ose::shader
 		// TEST - Builds default 2d shader
 		GLuint vert = glCreateShader(GL_VERTEX_SHADER);
 		// TODO - Possibly replace sampler scaling by scaling the instance transform by the texture size
-		char * vert_source =
+		char const * vert_source =
 			"#version 330\n"
 			"layout(location = 0) in vec2 position;\n"
 			"layout(location = 1) in vec2 uv;\n"
@@ -57,7 +57,7 @@ namespace ose::shader
 		}
 
 		GLuint frag = glCreateShader(GL_FRAGMENT_SHADER);
-		char * frag_source =
+		char const * frag_source =
 			"#version 330\n"
 			"layout(location = 0) out vec4 fragColor;\n"
 			"in vec2 vertexUV;\n"

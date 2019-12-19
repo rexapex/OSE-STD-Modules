@@ -1,9 +1,10 @@
 #pragma once
 #include "../Widget.h"
-#include "OSE-V2-STD-Modules/EngineDependencies/imgui/imgui.h"
 
 namespace ose::editor
 {
+	class EditorDearIMGUI;
+
 	class Launcher : public Widget
 	{
 	public:

@@ -5,10 +5,7 @@
 #include "OSE-Core/Windowing/WindowManager.h"
 #include "OSE-Core/Rendering/VideoMode.h"
 #include <windows.h>
-#include <GL/glew.h>
-#include <GL/gl.h>
 #include <GLFW/glfw3.h>
-
 
 namespace ose::windowing
 {

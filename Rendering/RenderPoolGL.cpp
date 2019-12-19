@@ -2,9 +2,17 @@
 #include "RenderPoolGL.h"
 #include "ERenderObjectType.h"
 
+#include "OSE-Core/EngineReferences.h"
+
+#include "OSE-Core/Math/ITransform.h"
+#include "OSE-Core/Entity/SpriteRenderer.h"
+
 // TODO - Remove
 #include "OSE-Core/Shader/Shaders/ShaderGraphDefault.h"
 #include "ShaderGroupGL.h"
+
+using namespace ose::entity;
+using namespace ose::math;
 
 namespace ose::rendering
 {
@@ -36,7 +44,7 @@ namespace ose::rendering
 	}
 
 	// Add a sprite renderer component to the render pool
-	void RenderPoolGL::AddSpriteRenderer(Transform const & t, ose::unowned_ptr<SpriteRenderer> sr)
+	void RenderPoolGL::AddSpriteRenderer(ITransform const & t, ose::unowned_ptr<SpriteRenderer> sr)
 	{
 		// Try to find a render object the 
 		ShaderGroupGL & s = render_passes_[0].shader_groups_[0];

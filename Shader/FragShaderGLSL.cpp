@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "FragShaderGLSL.h"
 
 namespace ose::shader

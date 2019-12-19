@@ -1,9 +1,5 @@
 #pragma once
 
-#define GLEW_STATIC
-
-#include <GL/glew.h>
-#include <GL/GL.h>
 #include "OSE-Core/Rendering/RenderingEngine.h"
 #include "OSE-Core/EngineDependencies/glm/glm.hpp"
 #include "RenderPoolGL.h"
@@ -11,8 +7,6 @@
 
 namespace ose::rendering
 {
-	using namespace game;
-
 	class RenderingEngineGL : public RenderingEngine
 	{
 	public:

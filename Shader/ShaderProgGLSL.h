@@ -16,7 +16,7 @@ namespace ose::shader
 		virtual void BuildShaderGraph(ShaderGraph & shader_graph);
 
 		// Get the shader program id
-		GLuint GetShaderProgId() const { return shader_prog_; }
+		uint32_t GetShaderProgId() const { return shader_prog_; }
 
 	private:
 		// GLSL shader program is composed of a vertex shader and a fragment shader
@@ -26,7 +26,7 @@ namespace ose::shader
 		FragShaderGLSL frag_shader_;
 
 		// OpenGL shader program id
-		GLuint shader_prog_ { 0 };
+		uint32_t shader_prog_ { 0 };
 
 		// Process the incoming connectors of node n
 		void ProcessIncomingConnectors(ShaderGraph & shader_graph, ose::unowned_ptr<ShaderNode> n);

@@ -3,13 +3,11 @@
 
 namespace ose::rendering
 {
-	using namespace resources;
-
-	class TextureGL : public Texture
+	class TextureGL : public resources::Texture
 	{
 	public:
 		// Texture is an abstract class, the full class will contain render library specific data
-		TextureGL(const std::string & name, const std::string & path) : Texture(name, path) {}
+		TextureGL(const std::string & name, const std::string & path) : resources::Texture(name, path) {}
 	private:
 		// default to 0, i.e. no texture
 		uint32_t gl_tex_id_ { 0 };
